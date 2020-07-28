@@ -2,7 +2,7 @@
   "name": "react-pinpoint",
   "version": "1.0.0",
   "description": "YEAH",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -27,5 +27,6 @@
     "eslint-plugin-react": "^7.20.0",
     "eslint-plugin-react-hooks": "^4.0.0",
     "prettier": "^2.0.5"
-  }
+  },
+  "dependencies": {}
 }
