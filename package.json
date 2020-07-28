@@ -28,5 +28,7 @@
     "eslint-plugin-react-hooks": "^4.0.0",
     "prettier": "^2.0.5"
   },
-  "dependencies": {}
+  "dependencies": {
+    "unique-random-array": "2.0.0"
+  }
 }
