@@ -1,0 +1,34 @@
+{
+  "name": "react-pinpoint",
+  "version": "1.0.0",
+  "description": "YEAH",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oslabs-beta/react-pinpoint.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/oslabs-beta/react-pinpoint/issues"
+  },
+  "homepage": "https://github.com/oslabs-beta/react-pinpoint#readme",
+  "devDependencies": {
+    "eslint": "^7.5.0",
+    "eslint-config-airbnb": "^18.2.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jsx-a11y": "^6.3.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-react": "^7.20.0",
+    "eslint-plugin-react-hooks": "^4.0.0",
+    "prettier": "^2.0.5"
+  },
+  "dependencies": {
+    "unique-random-array": "2.0.0"
+  }
+}
