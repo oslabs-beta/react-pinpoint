@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 let changes = [];
 function getCircularReplacer() {
   const seen = new WeakSet();
