@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable consistent-return */
 let changes = [];
 function getCircularReplacer() {
   const seen = new WeakSet();
@@ -32,17 +34,44 @@ function mountToReactRoot(reactRoot) {
   // Reassign react fibers tree to record initial state
   parent.current = parent.current;
 }
-const getRenders = () => changes.map((change) => JSON.parse(change));
 
 function traverseWith(fiber, callback) {
+  callback(fiber);
   if (fiber.child) {
-    callback(fiber.child);
     traverseWith(fiber.child, callback);
   }
   if (fiber.sibling) {
-    callback(fiber.sibling);
     traverseWith(fiber.sibling, callback);
   }
 }
 
-module.exports = { mountToReactRoot, getRenders, traverseWith };
+function flattenTree(tree) {
+  // Closured array for storing fibers
+  const arr = [];
+  // Closured callback for adding to arr
+  const callback = (fiber) => {
+    arr.push(fiber);
+  };
+  traverseWith(tree, callback);
+  return arr;
+}
+
+function checkTime(fiber, threshold) {
+  return fiber.selfBaseDuration > threshold;
+}
+
+/**
+ *
+ * @param {number} threshold The rendering time to filter for.
+ */
+function getAllSlowComponentRenders(threshold, changesArray) {
+  const slowRenders = changesArray
+    .map(JSON.parse) // Convert objects to JSON
+    .map(flattenTree) // Flatten tree
+    .flat() // Flatten 2d array into 1d array
+    .filter((fiber) => checkTime(fiber, threshold)); // filter out all that don't meet threshold
+  // Return any times greater than 16ms
+  return slowRenders;
+}
+
+module.exports = { mountToReactRoot, getAllSlowComponentRenders, traverseWith, getCircularReplacer };
