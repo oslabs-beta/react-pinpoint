@@ -1,8 +1,8 @@
 // const React = require('react');
 import React from 'react';
 const TestRenderer = require('react-test-renderer');
-const names = require('../src/index');
-const { mountToReactRoot, getAllSlowComponentRenders, getCircularReplacer } = require('../src/utils/utils');
+const names = require('../index');
+const { mountToReactRoot, getAllSlowComponentRenders, getCircularReplacer } = require('../utils/utils');
 
 describe('all names test', () => {
   it('expects Robbie, Jeffie, Mattie, Taie, and Shane Allan in the array', () => {
