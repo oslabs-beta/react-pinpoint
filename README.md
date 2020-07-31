@@ -9,4 +9,4 @@
   />
 </a>
 
-<p>Pinpoint your React comoponents to see how performant they are.</p>
+<p>Pinpoint your React components to see how performant they are.</p>
