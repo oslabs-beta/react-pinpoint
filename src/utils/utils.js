@@ -1,6 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable consistent-return */
+
 let changes = [];
+
 function getCircularReplacer() {
   const seen = new WeakSet();
   return (key, value) => {
@@ -13,6 +15,7 @@ function getCircularReplacer() {
     return value;
   };
 }
+
 function recordChangesToObjField(obj, field) {
   Object.defineProperty(obj, field, {
     get() {
@@ -24,15 +27,17 @@ function recordChangesToObjField(obj, field) {
     },
   });
 }
+
 function mountToReactRoot(reactRoot) {
   // Reset changes
   changes = [];
   // Lift parent of react fibers tree
   const parent = reactRoot._reactRootContainer._internalRoot;
+  const { current } = parent;
   // Add listener to react fibers tree so changes can be recorded
   recordChangesToObjField(parent, 'current');
   // Reassign react fibers tree to record initial state
-  parent.current = parent.current;
+  parent.current = current;
 }
 
 function traverseWith(fiber, callback) {
