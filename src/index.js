@@ -12,7 +12,7 @@ async function recordTest(page, url, rootIdString) {
   // Load url and inject code to page
   await page.goto(url);
   await page.addScriptTag({
-    path: path.join(__dirname, 'utils.js'),
+    path: path.join(__dirname, 'utils/utils.js'),
   });
 
   // Start recording changes
