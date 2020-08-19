@@ -1,12 +1,10 @@
-/* eslint-disable no-shadow */
-/* eslint-disable no-undef */
-const path = require('path');
+import * as path from 'path';
 
 async function recordTest(page, url, rootIdString) {
   // Mock devtools hook so react will record fibers
   // Must exist before react runs
   await page.evaluateOnNewDocument(() => {
-    window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {};
+    window['__REACT_DEVTOOLS_GLOBAL_HOOK__'] = {};
   });
 
   // Load url and inject code to page
@@ -16,7 +14,7 @@ async function recordTest(page, url, rootIdString) {
   });
 
   // Start recording changes
-  await page.evaluate((rootIdString) => {
+  await page.evaluate(rootIdString => {
     const root = document.querySelector(rootIdString);
     mountToReactRoot(root);
   }, rootIdString);
@@ -26,7 +24,7 @@ async function recordTest(page, url, rootIdString) {
 
 async function reportTestResults(page, threshold = 0) {
   // Return results of local state that exceeds threshold
-  const slowRenders = await page.evaluate(async (threshold) => {
+  const slowRenders = await page.evaluate(async threshold => {
     return getAllSlowComponentRenders(threshold);
   }, threshold);
 
@@ -37,4 +35,4 @@ async function reportAllTestResults() {
   // Return global state
 }
 
-module.exports = { recordTest, reportTestResults, reportAllTestResults };
+module.exports = {recordTest, reportTestResults, reportAllTestResults};

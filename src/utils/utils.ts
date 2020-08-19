@@ -1,7 +1,3 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable consistent-return */
-
 let changes = [];
 
 // used for parsing a node to a usable form (with )
@@ -9,7 +5,7 @@ function parseNode(node) {
   return {
     type: node.type,
     selfBaseDuration: node.selfBaseDuration,
-    state: node.stateNode && node.stateNode.state && node.stateNode.state.next,
+    state: node?.stateNode?.state?.next,
     child: node.child && parseNode(node.child),
     sibling: node.sibling && parseNode(node.sibling),
   };
@@ -34,7 +30,7 @@ function parseCompletedNode(node) {
   delete node.child;
   delete node.sibling;
   return {
-    type: node.type ? node.type.name : 'root',
+    type: node?.type?.name,
     state: node.state,
     selfBaseDuration: node.selfBaseDuration,
   };
@@ -46,7 +42,7 @@ function mountToReactRoot(reactRoot) {
 
   // Lift parent of react fibers tree
   const parent = reactRoot._reactRootContainer._internalRoot;
-  const { current } = parent;
+  const {current} = parent;
 
   // Add listener to react fibers tree so changes can be recorded
   recordChangesToObjField(parent, 'current');
@@ -70,7 +66,7 @@ function flattenTree(tree) {
   // Closured array for storing fibers
   const arr = [];
   // Closured callback for adding to arr
-  const callback = (fiber) => {
+  const callback = fiber => {
     arr.push(fiber);
   };
   traverseWith(tree, callback);
@@ -85,13 +81,13 @@ function checkTime(fiber, threshold) {
  *
  * @param {number} threshold The rendering time to filter for.
  */
-function getAllSlowComponentRenders(threshold) {
+function getAllSlowComponentRenders(threshold: number) {
   const slowRenders = changes
     .map(flattenTree) // Flatten tree
     .flat() // Flatten 2d array into 1d array
-    .filter((fiber) => checkTime(fiber, threshold)) // filter out all that don't meet threshold
+    .filter(fiber => checkTime(fiber, threshold)) // filter out all that don't meet threshold
     .map(parseCompletedNode); // removes circular references
   return slowRenders;
 }
 
-module.exports = { mountToReactRoot, getAllSlowComponentRenders, traverseWith };
+module.exports = {mountToReactRoot, getAllSlowComponentRenders, traverseWith};

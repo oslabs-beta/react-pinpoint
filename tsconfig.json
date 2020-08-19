@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": "./src",
+    "lib": ["dom", "ES2020"]
+  }
+}
