@@ -1,6 +1,22 @@
 # dockerfile generator
 
-A script to generate docker files to be used with react-pinpoint and puppeteer js. 
+## Table of Contents
+- [Description](##Description)
+- [Prerequisites](##Prerequisites)
+- [Features](##Features)
+- [Usage](##Usage)
+  - [Getting Started](###Getting-Started)
+  - [User Inputs](###User-Inputs)
+  - [Configure the url for react-pinpoint](###Configure-the-url-for-react-pinpoint)
+  - [Build and run the docker containers](###Build-and-run-the-docker-containers)
+
+## Description
+A script to generate Docker files to be used with react-pinpoint and puppeteer js.
+
+## Prerequisites
+- [Docker](https://www.docker.com/)
+- [react-pinpoint](https://github.com/oslabs-beta/react-pinpoint)
+- [puppeteer](https://pptr.dev/)
 
 ## Features
 
@@ -32,21 +48,13 @@ In the test file, replace `http://localhost:3000` with the `app name` and `port`
 
 ```javascript
 beforeEach(async () => {
-
-  browser = *await* puppeteer.launch({
-
-​    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-
+  browser = await puppeteer.launch({
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
-
-  page = *await* browser.newPage();
-	
+  page = await browser.newPage();
   const url = "http://webapp:5000";
-
   const rootId = "#root";
-
-  *await* reactPinpoint.recordTest(page, url, rootId);
-
+  await reactPinpoint.recordTest(page, url, rootId);
 })
 ```
 
