@@ -1,6 +1,6 @@
 import * as path from 'path';
 
-async function recordTest(page, url, rootIdString) {
+async function record(page, url, rootIdString) {
   // Mock devtools hook so react will record fibers
   // Must exist before react runs
   await page.evaluateOnNewDocument(() => {
@@ -10,7 +10,7 @@ async function recordTest(page, url, rootIdString) {
   // Load url and inject code to page
   await page.goto(url);
   await page.addScriptTag({
-    path: path.join(__dirname, 'utils/utils.js'),
+    path: path.join(__dirname, 'utils.js'),
   });
 
   // Start recording changes
@@ -22,7 +22,7 @@ async function recordTest(page, url, rootIdString) {
   return page;
 }
 
-async function reportTestResults(page, threshold = 0) {
+async function report(page, threshold = 0) {
   // Return results of local state that exceeds threshold
   const slowRenders = await page.evaluate(async threshold => {
     return getAllSlowComponentRenders(threshold);
@@ -31,8 +31,8 @@ async function reportTestResults(page, threshold = 0) {
   return slowRenders;
 }
 
-async function reportAllTestResults() {
+async function reportAll() {
   // Return global state
 }
 
-module.exports = {recordTest, reportTestResults, reportAllTestResults};
+export {record, report, reportAll};
