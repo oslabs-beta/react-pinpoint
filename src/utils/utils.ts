@@ -26,8 +26,11 @@ class TreeNode {
         updater: any;
       }
     | string;
+  parent: any;
   child: any;
   sibling: any;
+  children: any;
+
   constructor(fiberNode, uID) {
     this.uID = uID;
     const {elementType, selfBaseDuration, memoizedState, memoizedProps, effectTag, tag, ref, updateQueue, stateNode} = fiberNode;
@@ -41,6 +44,7 @@ class TreeNode {
     this.updateQueue = updateQueue; // seems to be replaced entirely and since it exists directly under a fiber node, it can't be modified.
     this.tag = tag;
     this.updateList = [];
+    this.children = [];
 
     // stateNode can contain circular references depends on the fiber node
     if (tag === 5) {
@@ -103,8 +107,34 @@ class TreeNode {
     this.sibling = treeNode;
   }
 
-  addParent(node) {
+  addParent(treeNode) {
     // if (!node) return;
+    this.parent = treeNode;
+  }
+
+  toSerializable() {
+    const newObj = {};
+    const omitList = ['memoizedProps', 'memoizedState', 'updateList', 'updateQueue', 'ref', 'elementType', 'stateNode'];
+    // transform each nested node to just ids where appropriate
+    const keys = Object.keys(this);
+    for (const key in keys) {
+      if (omitList.indexOf(key) < 0) {
+        switch (key) {
+          case 'parent':
+          case 'sibling':
+          case 'child':
+            newObj[`${key}ID`] = this[key].uID;
+            break;
+          case 'children': // sorry for this monstrosity, :D
+            newObj[`childrenIDs`] = this[key].map(treeNode => treeNode.uID);
+            break;
+          default:
+            newObj[key] = this[key];
+        }
+      }
+    }
+
+    return newObj;
   }
 }
 
@@ -145,19 +175,10 @@ class Tree {
     // if this is a unique fiber (that both "current" and "alternate" fiber represents)
     // then add to the processedFiber to make sure we don't re-account this fiber.
     if (!processedFibers.has(uniquePart)) {
-      // processedFibers.add(fiberNode);
-      // componentMap.set(this.uniqueId, fiberNode);
       id = this.uniqueId;
       this.uniqueId++;
 
       fiberMap.set(id, fiberNode);
-      // if (fiberNode.tag === 0) {
-      //   processedFibers.set(fiberNode.elementType, id);
-      // } else if (fiberNode.tag === 3) {
-      //   processedFibers.set(fiberNode.memoizedState.element.type, id);
-      // } else {
-      //   processedFibers.set(fiberNode.stateNode, id);
-      // }
       processedFibers.set(uniquePart, id);
     } else {
       id = processedFibers.get(uniquePart);
@@ -167,34 +188,28 @@ class Tree {
     // create a new TreeNode
     if (fiberNode.tag === 3) {
       this.root = new TreeNode(fiberNode, id);
-      // this.root = new TreeNode(fiberNode, this.uniqueId);
-      this.componentList.push({...this.root}); // push a copy
-      // this.uniqueId++;
+      this.componentList.push(this.root); // push a copy
 
       if (fiberNode.child) {
-        // const newNode = new TreeNode(fiberNode.child, this.uniqueId);
-        // this.root.addChild(newNode);
-        // this.componentList.push(newNode);
-        // this.uniqueId++;
         this.processNode(fiberNode.child, this.root);
       }
     } else {
       const newNode = new TreeNode(fiberNode, id);
-      // const newNode = new TreeNode(fiberNode, this.uniqueId);
+      newNode.addParent(previousTreeNode);
+      previousTreeNode.children.push(newNode);
       previousTreeNode.addChild(newNode);
-      this.componentList.push({...newNode});
-      // this.uniqueId++;
+      this.componentList.push(newNode);
 
       if (fiberNode.child) {
         this.processNode(fiberNode.child, newNode);
       }
       if (fiberNode.sibling) {
-        this.processSiblingNode(fiberNode.sibling, newNode);
+        this.processSiblingNode(fiberNode.sibling, newNode, previousTreeNode);
       }
     }
   }
 
-  processSiblingNode(fiberNode, previousTreeNode) {
+  processSiblingNode(fiberNode, previousTreeNode, parentTreeNode) {
     let uniquePart = undefined;
     let id = undefined;
     if (fiberNode.tag === 0 || fiberNode.tag === 10 || fiberNode.tag === 11 || fiberNode.tag === 9) {
@@ -207,34 +222,26 @@ class Tree {
       uniquePart = fiberNode.stateNode;
     }
     if (!processedFibers.has(uniquePart)) {
-      // processedFibers.add(fiberNode);
-      // componentMap.set(this.uniqueId, fiberNode);
       id = this.uniqueId;
       this.uniqueId++;
       fiberMap.set(id, fiberNode);
-      // if (fiberNode.tag === 0) {
-      //   processedFibers.set(fiberNode.elementType, id);
-      // } else if (fiberNode.tag === 3) {
-      //   processedFibers.set(fiberNode.memoizedState.element.type, id);
-      // } else {
-      //   processedFibers.set(fiberNode.stateNode, id);
-      // }
+
       processedFibers.set(uniquePart, id);
     } else {
       id = processedFibers.get(uniquePart);
     }
 
     const newNode = new TreeNode(fiberNode, id);
-    // const newNode = new TreeNode(fiberNode, this.uniqueId);
+    newNode.addParent(parentTreeNode);
+    parentTreeNode.children.push(newNode);
     previousTreeNode.addSibling(newNode);
-    this.componentList.push({...newNode});
-    // this.uniqueId++;
+    this.componentList.push(newNode);
 
     if (fiberNode.child) {
       this.processNode(fiberNode.child, newNode);
     }
     if (fiberNode.sibling) {
-      this.processSiblingNode(fiberNode.sibling, newNode);
+      this.processSiblingNode(fiberNode.sibling, newNode, parentTreeNode);
     }
   }
 }
@@ -281,6 +288,19 @@ function mountToReactRoot(reactRoot) {
   // Reassign react fibers tree to record initial state
   // parent.current = current;
   return changes;
+}
+
+function scrubCircularReferences(changes) {
+  // loop through the different commits
+  // for every commit check the componentList
+  // scrub the circular references and leave the flat one there
+
+  const scrubChanges = changes.map(commit => {
+    return commit.componentList.map(component => {
+      return component.toSerializable();
+    });
+  });
+  return scrubChanges;
 }
 
 /**
