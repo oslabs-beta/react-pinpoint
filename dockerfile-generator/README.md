@@ -22,7 +22,6 @@ A script to generate Docker files to be used with react-pinpoint and puppeteer j
 - [Docker](https://www.docker.com/)
 - [react-pinpoint](https://github.com/oslabs-beta/react-pinpoint)
 - [puppeteer](https://pptr.dev/)
-  > > > > > > > 191a5c1e7702feb5791c59ef8cbf36b8a903d6bd:dockerfile-generator/README.md
 
 ## Features
 
