@@ -1,4 +1,5 @@
 import * as path from 'path';
+import {mountToReactRoot, getAllSlowComponentRenders} from './utils/utils';
 
 async function record(page, url, rootIdString) {
   // Mock devtools hook so react will record fibers
@@ -22,17 +23,17 @@ async function record(page, url, rootIdString) {
   return page;
 }
 
-async function report(page, threshold = 0) {
-  // Return results of local state that exceeds threshold
-  const slowRenders = await page.evaluate(async threshold => {
-    return getAllSlowComponentRenders(threshold);
-  }, threshold);
+// async function report(page, threshold = 0) {
+//   // Return results of local state that exceeds threshold
+//   const slowRenders = await page.evaluate(async threshold => {
+//     return getAllSlowComponentRenders(threshold);
+//   }, threshold);
 
-  return slowRenders;
-}
+//   return slowRenders;
+// }
 
 async function reportAll() {
   // Return global state
 }
 
-export {record, report, reportAll};
+export {record, reportAll};
