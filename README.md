@@ -19,6 +19,8 @@
   - [report](#report--)
 - [Examples](#examples)
   - [Using with Puppeteer](#using-with-puppeteer)
+- [Getting Started](#getting-started)
+- [Installation](#installation)
 - [Docker](#docker)
 - [FAQS](#faqs)
 
@@ -94,27 +96,45 @@ const reactPinpoint = require('react-pinpoint');
 })();
 ```
 
-### Using with Cypress
+## Getting Started
+1. Head over to the React Pinpoint [website](https://reactpinpoint.com).
+2. Register for an account.
+3. Add a project and fill in the details.
+4. Copy the project ID provided.
 
-Not yet implemented
+## Installation
+Using npm:
+```shell
+npm install -D react-pinpoint
+```
+Using yarn:
+```shell
+yarn add react-pinpoint -D
+```
+- Invoke `mountToReactRoot` and paste the project ID you received from the website as the second argument in your React project’s entry file:
+```javascript
+mountToReactRoot(rootDom, projectID);
+```
+-  Interact with your app and data will be sent to React Pinpoint website.
+- Refresh the page and see your data displayed!
 
 ## Docker
 
 React pinpoint was designed with the goal of regression testing component render times within a CICD, we therefore offer several
-preconfigured docker containers to assist with using React pinpoint within a CICD as well as with examples for doing so
+preconfigured docker containers to assist with using React pinpoint within a CICD as well as with examples for doing so.
 
 - [Puppeteer](https://github.com/oslabs-beta/react-pinpoint/tree/master/dockerfile-generator)
 
-## FAQS
+## FAQs
 
 #### Why does React Pinpoint only measure individual component render times?
 
-Since React has moved to using a React fiber infrastructure
+Since React has moved to using a React Fiber infrastructure, different component types are assumed to generate different trees.
 
 #### Why is the default render threshold 16ms?
 
-The recommended render time for a [60 FPS](https://developers.google.com/web/fundamentals/performance/rendering)
+The recommended render time is [60 FPS](https://developers.google.com/web/fundamentals/performance/rendering).
 
 #### Does React pinpoint work in a headless browser?
 
-Yes! Due to the component render times being driven by component logic, a GUI is not needed to capture them
+Yes! Due to the component render times being driven by component logic, a GUI is not needed to capture them.
