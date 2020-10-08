@@ -1,15 +1,11 @@
-# React Pinpoint
+<div align="center">
+  <img width="384" height="384" src="https://raw.githubusercontent.com/ReactPinpoint/react-pinpoint-website/master/public/logo512.png">
+</div>
 
-<a>
-  <img
-    height="80"
-    width="80"
-    alt="goat"
-    src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/160/apple/237/kangaroo_1f998.png"
-  />
-</a>
-
-An open-source utility library for measuring React component render times
+    
+ # React Pinpoint
+ 
+  An open-source utility library for measuring React component render times.
 
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 
