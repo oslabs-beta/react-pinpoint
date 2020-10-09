@@ -85,6 +85,9 @@ class TreeNode {
           case 'parent':
             newObj['parent_component_id'] = this[key] ? this[key].uID : this[key];
             break;
+          case 'fiberName':
+            newObj['component_name'] = this[key];
+            break;
           case 'sibling':
             newObj['sibling_component_id'] = this[key].uID;
             break;
@@ -136,10 +139,12 @@ class TreeNode {
 
 function getElementName(fiber) {
   switch (fiber.tag) {
+    case 0:
+      return 'Hook';
     case 1:
       return fiber.elementType.name;
     case 3:
-      return 'Host Root - The element you used to render the React App';
+      return 'Host Root';
     case 5:
       return `${fiber.elementType}${fiber.elementType.className ? `.${fiber.elementType.className}` : ''}`;
     default:

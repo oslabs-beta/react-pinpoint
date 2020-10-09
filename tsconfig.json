@@ -3,5 +3,6 @@
     "noEmit": true,
     "baseUrl": "./src",
     "lib": ["dom", "ES2020"]
-  }
+  },
+  "exclude": ["lib/**/*"]
 }

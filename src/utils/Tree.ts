@@ -114,7 +114,7 @@ class Tree {
     }
   }
 
-  getRendersOfComponent(name, serialize = false) {
+  getCommitssOfComponent(name, serialize = false) {
     let componentList = [];
 
     componentList = this.componentList.filter(item => item.fiberName === name);

@@ -6,6 +6,7 @@
       "strict": ["error", "never"]
     }
   },
+  "ignorePatterns": "./lib/**",
   "extends": ["eslint:recommended", "eslint-config-prettier", "plugin:react/recommended"],
   "rules": {
     "strict": ["error", "never"]

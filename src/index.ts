@@ -1,7 +1,7 @@
 import * as path from 'path';
-import {mountToReactRoot, getAllSlowComponentRenders} from './utils/utils';
+import {mountToReactRoot, getAllSlowComponentRenders, getTotalCommitCount} from './utils/utils';
 
-async function record(page, url, rootIdString) {
+async function record(page, url: string, rootIdString: string, projectID?: string) {
   // Mock devtools hook so react will record fibers
   // Must exist before react runs
   await page.evaluateOnNewDocument(() => {
@@ -11,29 +11,36 @@ async function record(page, url, rootIdString) {
   // Load url and inject code to page
   await page.goto(url);
   await page.addScriptTag({
-    path: path.join(__dirname, 'utils.js'),
+    path: path.join(__dirname, './bundle.puppeteer.js'),
+    type: 'module',
   });
 
   // Start recording changes
-  await page.evaluate(rootIdString => {
-    const root = document.querySelector(rootIdString);
-    mountToReactRoot(root);
-  }, rootIdString);
+  await page.evaluate(
+    (rootIdString, projectID) => {
+      const root = document.querySelector(rootIdString);
+      mountToReactRoot(root, projectID);
+    },
+    rootIdString,
+    projectID ? projectID : null,
+  );
 
   return page;
 }
 
-// async function report(page, threshold = 0) {
-//   // Return results of local state that exceeds threshold
-//   const slowRenders = await page.evaluate(async threshold => {
-//     return getAllSlowComponentRenders(threshold);
-//   }, threshold);
+declare const changes; // workaround since we're eval-ing this in browser context
+async function report(page, threshold = 0) {
+  // Return results of local state that exceeds threshold
+  const slowRenders = await page.evaluate(async threshold => {
+    const result = getAllSlowComponentRenders(changes, threshold);
+    return JSON.stringify(result);
+  }, threshold);
 
-//   return slowRenders;
-// }
+  return JSON.parse(slowRenders);
+}
 
 async function reportAll() {
   // Return global state
 }
 
-export {record, reportAll};
+export {report, mountToReactRoot, getAllSlowComponentRenders, getTotalCommitCount};

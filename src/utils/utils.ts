@@ -1,13 +1,16 @@
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable no-empty */
 import Tree from './Tree';
+import Observable from './Observable';
+
 let changes = [];
 const processedFibers = new WeakMap();
 const fiberMap = new Map();
 
-function mountToReactRoot(reactRoot) {
+function mountToReactRoot(reactRoot, projectID?: string | null) {
   // Reset changes
   changes = [];
+  const changeObservable = new Observable();
 
   function getSet(obj, propName) {
     const newPropName = `_${propName}`;
@@ -19,6 +22,8 @@ function mountToReactRoot(reactRoot) {
       set(newVal) {
         this[newPropName] = newVal;
         changes.push(new Tree(this[newPropName], fiberMap, processedFibers));
+        changeObservable.notify(changes);
+        if (projectID) sendData(changes, projectID);
       },
     });
   }
@@ -26,9 +31,13 @@ function mountToReactRoot(reactRoot) {
   // Lift parent of react fibers tree
   const parent = reactRoot._reactRootContainer._internalRoot;
   changes.push(new Tree(parent.current, fiberMap, processedFibers));
+  if (projectID) sendData(changes, projectID);
   // Add listener to react fibers tree so changes can be recorded
   getSet(parent, 'current');
-  return changes;
+  return {
+    changes,
+    changeObserver: changeObservable,
+  };
 }
 
 function scrubCircularReferences(changes) {
@@ -84,25 +93,39 @@ function getAllSlowComponentRenders(changes, threshold) {
 //   return "what";
 // }
 
-function getTotalRenderCount() {
-  const componentMap = new Map();
+function getTotalCommitCount(changes, name?: string, storageType?: string) {
+  const componentStore = new Map();
 
-  // loop through each commit
-  // for each commit, loop through the array of trees
-  // for each tree
-  // check if the current component exist in the map before adding on or creating a new key
-  changes.forEach((commit, commitIndex) => {
+  let filteredChanges = [];
+  if (name) {
+    filteredChanges = changes.map(commit => {
+      return commit.getCommitssOfComponent(name);
+    });
+  } else {
+    filteredChanges = changes;
+  }
+
+  // looping through each commit's componentList to tally up the renderCount
+  filteredChanges.forEach((commit, commitIndex) => {
     commit.componentList.forEach((component, componentIndex) => {
-      if (!componentMap.has(component.uID)) {
-        componentMap.set(component.uID, {renderCount: 1});
+      if (!componentStore.has(component.uID)) {
+        componentStore.set(component.uID, {component, renderCount: 1});
       } else {
         if (didFiberRender(changes[commitIndex ? commitIndex - 1 : 0].componentList[componentIndex], component)) {
-          componentMap.get(component.uID).renderCount += 1;
+          componentStore.get(component.uID).renderCount += 1;
         }
       }
     });
   });
-  return componentMap;
+
+  let result: Map<number, any> | any[] = [];
+  if (storageType && storageType === 'array') {
+    result = Array.from(componentStore.values());
+  } else {
+    result = componentStore;
+  }
+
+  return result;
 }
 
 function didFiberRender(prevFiber, nextFiber) {
@@ -169,4 +192,26 @@ function getChangedKeys(previous, next) {
   return changedKeys;
 }
 
-export {mountToReactRoot, getAllSlowComponentRenders};
+async function sendData(changes, projectID) {
+  if (!projectID) return;
+
+  const data = scrubCircularReferences(changes);
+
+  console.log(data);
+  const request = await fetch(`https://react-pinpoint-api.herokuapp.com/api/commit/${projectID}`, {
+    method: 'POST',
+    mode: 'cors',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      changes: data[data.length - 1],
+    }),
+  });
+
+  const response = await request.json();
+  console.log('response from server', response);
+}
+
+export {mountToReactRoot, getAllSlowComponentRenders, getTotalCommitCount};
