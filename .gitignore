@@ -117,4 +117,4 @@ dist
 .pnp.*
 
 # Rollup output
-/output
+.lib/

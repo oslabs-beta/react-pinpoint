@@ -1,5 +1,5 @@
 import * as path from 'path';
-import {mountToReactRoot, getAllSlowComponentRenders, getTotalCommitCount} from './utils/utils';
+import {mountToReactRoot, getAllSlowComponentRenders, getTotalCommitCount, scrubCircularReferences} from './utils/utils';
 
 async function record(page, url: string, rootIdString: string, projectID?: string) {
   // Mock devtools hook so react will record fibers
@@ -43,4 +43,4 @@ async function reportAll() {
   // Return global state
 }
 
-export {report, mountToReactRoot, getAllSlowComponentRenders, getTotalCommitCount};
+export {report, mountToReactRoot, getAllSlowComponentRenders, getTotalCommitCount, scrubCircularReferences};

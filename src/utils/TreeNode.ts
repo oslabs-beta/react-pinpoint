@@ -24,16 +24,18 @@ class TreeNode {
   child: any;
   sibling: any;
   children: any;
+  type: any;
 
   constructor(fiberNode, uID) {
     this.uID = uID;
-    const {elementType, selfBaseDuration, memoizedState, memoizedProps, effectTag, tag, ref, updateQueue, stateNode} = fiberNode;
+    const {elementType, selfBaseDuration, memoizedState, memoizedProps, effectTag, tag, ref, updateQueue, stateNode, type} = fiberNode;
     this.elementType = elementType;
     this.selfBaseDuration = selfBaseDuration;
     this.memoizedProps = memoizedProps;
     this.memoizedState = memoizedState;
     this.effectTag = effectTag;
     this.ref = ref;
+    this.type = type;
     this.fiberName = getElementName(fiberNode);
     this.updateQueue = updateQueue; // seems to be replaced entirely and since it exists directly under a fiber node, it can't be modified.
     this.tag = tag;
@@ -70,13 +72,15 @@ class TreeNode {
   toSerializable(): any {
     const newObj = {};
     const omitList = [
-      // "memoizedProps", // currently working on serialization for this
-      // "memoizedState", // and this as well
+      'memoizedProps', // currently working on serialization for this
+      'memoizedState', // and this as well
       'updateList',
       'updateQueue',
       'ref',
       'elementType',
-      // "stateNode", // serialization needed for this?
+      'stateNode', // serialization needed for this?
+      'sibling', // maybe not needed
+      'type', // some circular references in here that we haven't accounted for
     ];
     // transform each nested node to just ids where appropriate
     for (const key of Object.getOwnPropertyNames(this)) {
@@ -138,17 +142,61 @@ class TreeNode {
 }
 
 function getElementName(fiber) {
+  let name = '';
   switch (fiber.tag) {
     case 0:
-      return 'Hook';
     case 1:
-      return fiber.elementType.name;
+      name = fiber.elementType.name || fiber.type.name; // somehow react lazy has a tag of 1, it seems to be grouped with the
+      return name;
     case 3:
-      return 'Host Root';
+      name = 'Host Root';
+      return name;
     case 5:
-      return `${fiber.elementType}${fiber.elementType.className ? `.${fiber.elementType.className}` : ''}`;
+      name = fiber.elementType;
+      if (fiber.elementType.className) {
+        name += `.${fiber.elementType.className}`;
+      } else if (fiber.memoizedProps) {
+        if (fiber.memoizedProps.className) {
+          name += `.${fiber.memoizedProps.className}`;
+        } else if (fiber.memoizedProps.id) {
+          name += `.${fiber.memoizedProps.id}`;
+        }
+      }
+      if (name.length > 10) {
+        // truncate long name
+        name = name.slice(0, 10);
+        name += '...';
+      }
+      return name;
+    case 6:
+      let textValue = fiber.stateNode.nodeValue;
+      // just to help truncating long text value, exceeding 4 chars will get truncated.
+      if (textValue.length > 10) {
+        textValue = textValue.slice(0, 10);
+        textValue = textValue.padEnd(3, '.');
+      }
+      name = `text: ${textValue}`;
+      return name;
+    case 8:
+      name = 'Strict Mode Zone';
+      return name;
+    case 9:
+      name = fiber.elementType._context.displayName;
+      return name;
+    case 10:
+      name = 'Context'; //
+      return name;
+    case 11:
+      name = fiber.elementType.displayName + '-' + `to:"${fiber.memoizedProps.to}"`;
+      return name;
+    case 13:
+      name = 'Suspense Zone';
+      return name;
+    case 16:
+      name = 'Lazy - ' + fiber.elementType._result.name;
+      return name;
     default:
-      return `${fiber.elementType}`;
+      return `${typeof fiber.elementType !== 'string' ? fiber.elementType : 'unknown'}`;
   }
 }
 
