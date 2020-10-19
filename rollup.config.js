@@ -10,7 +10,8 @@ export default [
     input: './src/utils/utils.ts',
     output: {
       file: 'lib/bundle.puppeteer.js',
-      format: 'esm',
+      exports: 'default',
+      format: 'cjs',
     },
     plugins: [
       resolve({
@@ -22,7 +23,7 @@ export default [
       }),
       babel({
         extensions,
-        presets: ['@babel/preset-env', '@babel/preset-typescript'],
+        presets: ['@babel/preset-typescript'],
         exclude: /node_modules/,
       }),
     ],
@@ -31,7 +32,8 @@ export default [
     input: './src/index.ts',
     output: {
       file: 'lib/bundle.main.js',
-      format: 'esm',
+      exports: 'default',
+      format: 'cjs',
     },
     plugins: [
       resolve({
@@ -43,9 +45,8 @@ export default [
       }),
       babel({
         extensions,
-        babelHelpers: 'runtime',
-        presets: ['@babel/preset-env', '@babel/preset-typescript'],
-        plugins: ['@babel/plugin-transform-runtime'],
+        babelHelpers: 'bundled',
+        presets: ['@babel/preset-typescript'],
         exclude: /node_modules/,
       }),
     ],

@@ -1,5 +1,7 @@
 import * as path from 'path';
-import {mountToReactRoot, getAllSlowComponentRenders, getTotalCommitCount, scrubCircularReferences} from './utils/utils';
+import ReactPP from './utils/utils';
+// const path = require('path');
+// const {mountToReactRoot, getAllSlowComponentRenders, getTotalCommitCount, scrubCircularReferences} = require('./bundle.puppeteer.js'); // since generated file is in lib folder
 
 async function record(page, url: string, rootIdString: string, projectID?: string) {
   // Mock devtools hook so react will record fibers
@@ -12,13 +14,13 @@ async function record(page, url: string, rootIdString: string, projectID?: strin
   await page.goto(url);
   await page.addScriptTag({
     path: path.join(__dirname, './bundle.puppeteer.js'),
-    type: 'module',
   });
 
   // Start recording changes
   await page.evaluate(
     (rootIdString, projectID) => {
       const root = document.querySelector(rootIdString);
+      // @ts-ignore
       mountToReactRoot(root, projectID);
     },
     rootIdString,
@@ -32,6 +34,7 @@ declare const changes; // workaround since we're eval-ing this in browser contex
 async function report(page, threshold = 0) {
   // Return results of local state that exceeds threshold
   const slowRenders = await page.evaluate(async threshold => {
+    // @ts-ignore
     const result = getAllSlowComponentRenders(changes, threshold);
     return JSON.stringify(result);
   }, threshold);
@@ -43,4 +46,12 @@ async function reportAll() {
   // Return global state
 }
 
-export {report, mountToReactRoot, getAllSlowComponentRenders, getTotalCommitCount, scrubCircularReferences};
+// module.exports = {record, report, mountToReactRoot, getAllSlowComponentRenders, getTotalCommitCount, scrubCircularReferences};
+export default {
+  record,
+  report,
+  mountToReactRoot: ReactPP.mountToReactRoot,
+  getAllSlowComponentRenders: ReactPP.getAllSlowComponentRenders,
+  getTotalCommitCount: ReactPP.getTotalCommitCount,
+  scrubCircularReferences: ReactPP.scrubCircularReferences,
+};

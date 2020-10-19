@@ -7,7 +7,7 @@
     }
   },
   "ignorePatterns": "./lib/**",
-  "extends": ["eslint:recommended", "eslint-config-prettier", "plugin:react/recommended"],
+  "extends": ["eslint:recommended", "eslint-config-prettier"],
   "rules": {
     "strict": ["error", "never"]
   },
@@ -28,7 +28,10 @@
         "plugin:@typescript-eslint/eslint-recommended",
         "plugin:@typescript-eslint/recommended",
         "eslint-config-prettier/@typescript-eslint"
-      ]
+      ],
+      "rules": {
+        "@typescript-eslint/ban-ts-comment": "off"
+      }
     }
   ]
 }

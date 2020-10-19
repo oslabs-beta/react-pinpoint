@@ -214,4 +214,4 @@ async function sendData(changes, projectID) {
   console.log('response from server', response);
 }
 
-export {mountToReactRoot, getAllSlowComponentRenders, getTotalCommitCount, scrubCircularReferences};
+export default {mountToReactRoot, getAllSlowComponentRenders, getTotalCommitCount, scrubCircularReferences};

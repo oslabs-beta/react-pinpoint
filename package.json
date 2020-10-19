@@ -1,10 +1,10 @@
 {
   "name": "react-pinpoint",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "React Pinpoint is an open source utility library for measuring React component render times.",
   "main": "lib/bundle.main.js",
   "files": [
-    "lib/bundle.main.js"
+    "lib"
   ],
   "scripts": {
     "build": "babel src --extensions .js,.ts,.tsx --out-dir dist",
